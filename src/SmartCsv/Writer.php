@@ -1,7 +1,12 @@
 <?php
 
-namespace ColbyGatte\CsvMan;
+namespace ColbyGatte\SmartCsv;
 
+/**
+ * Class Writer
+ *
+ * @package ColbyGatte\SmartCsv
+ */
 class Writer
 {
     /**
@@ -9,10 +14,22 @@ class Writer
      */
     protected $delimiter;
 
+    /**
+     * @var bool|resource
+     */
     protected $fileHandle;
 
+    /**
+     * @var string
+     */
     protected $filePath;
 
+    /**
+     * Writer constructor.
+     *
+     * @param string $filePath
+     * @param string $delimiter
+     */
     public function __construct($filePath, $delimiter = ',')
     {
         $this->filePath = $filePath;
@@ -20,6 +37,9 @@ class Writer
         $this->delimiter = $delimiter;
     }
 
+    /**
+     * @param \ColbyGatte\SmartCsv\Header|\ColbyGatte\SmartCsv\Row|array $row
+     */
     public function write($row)
     {
         if ($row instanceof Header) {

@@ -2,10 +2,10 @@
 
 namespace Tests\UnitTests;
 
-use ColbyGatte\CsvMan\Csv;
-use ColbyGatte\CsvMan\Header;
-use ColbyGatte\CsvMan\Row;
-use ColbyGatte\CsvMan\CsvUtils;
+use ColbyGatte\SmartCsv\Csv;
+use ColbyGatte\SmartCsv\Header;
+use ColbyGatte\SmartCsv\Row;
+use ColbyGatte\SmartCsv\CsvUtils;
 use Tests\TestCase;
 
 class BasicCsvTest extends TestCase

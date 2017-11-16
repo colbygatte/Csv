@@ -2,10 +2,10 @@
 
 namespace Tests\UnitTests;
 
-use ColbyGatte\CsvMan\Csv;
-use ColbyGatte\CsvMan\CsvUtils;
-use ColbyGatte\CsvMan\Header;
-use ColbyGatte\CsvMan\Iterators\Sip;
+use ColbyGatte\SmartCsv\Csv;
+use ColbyGatte\SmartCsv\CsvUtils;
+use ColbyGatte\SmartCsv\Header;
+use ColbyGatte\SmartCsv\Iterators\Sip;
 use Tests\TestCase;
 
 class ReadingTest extends TestCase

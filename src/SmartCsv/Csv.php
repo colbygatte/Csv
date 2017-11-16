@@ -1,14 +1,22 @@
 <?php
 
-namespace ColbyGatte\CsvMan;
+namespace ColbyGatte\SmartCsv;
 
+/**
+ * Class Csv
+ *
+ * @package ColbyGatte\SmartCsv
+ */
 class Csv implements \Countable, \Iterator
 {
     /**
-     * @var \ColbyGatte\CsvMan\Header
+     * @var \ColbyGatte\SmartCsv\Header
      */
     protected $header;
 
+    /**
+     * @var \ColbyGatte\SmartCsv\Row[]
+     */
     protected $rows = [];
 
     public function __construct($header = null)
@@ -19,7 +27,7 @@ class Csv implements \Countable, \Iterator
     }
 
     /**
-     * @return \ColbyGatte\CsvMan\Header
+     * @return \ColbyGatte\SmartCsv\Header
      */
     public function getHeader()
     {
@@ -39,7 +47,7 @@ class Csv implements \Countable, \Iterator
     /**
      * @param array $data
      *
-     * @return \ColbyGatte\CsvMan\Row
+     * @return \ColbyGatte\SmartCsv\Row
      */
     public function append(array $data)
     {
@@ -54,6 +62,11 @@ class Csv implements \Countable, \Iterator
         return $row;
     }
 
+    /**
+     * @param \ColbyGatte\SmartCsv\Row $row
+     *
+     * @throws \Exception
+     */
     public function appendRow(Row $row)
     {
         if ($row->getHeader() !== $this->header) {
@@ -62,6 +75,11 @@ class Csv implements \Countable, \Iterator
         $this->rows[] = $row;
     }
 
+    /**
+     * @param callable $callback
+     *
+     * @return array
+     */
     public function mapRows(callable $callback)
     {
         $data = [];
@@ -73,11 +91,17 @@ class Csv implements \Countable, \Iterator
         return $data;
     }
 
+    /**
+     * @return int
+     */
     public function count()
     {
         return count($this->rows);
     }
 
+    /**
+     * @return string
+     */
     public function toJson()
     {
         return json_encode($this->mapRows(function (Row $row) {
@@ -86,11 +110,9 @@ class Csv implements \Countable, \Iterator
     }
 
     /**
-     * Return the current element
+     * Return the current row
      *
-     * @link  http://php.net/manual/en/iterator.current.php
-     * @return \ColbyGatte\CsvMan\Row
-     * @since 5.0.0
+     * @return \ColbyGatte\SmartCsv\Row
      */
     public function current()
     {
@@ -98,11 +120,7 @@ class Csv implements \Countable, \Iterator
     }
 
     /**
-     * Move forward to next element
-     *
-     * @link  http://php.net/manual/en/iterator.next.php
-     * @return void Any returned value is ignored.
-     * @since 5.0.0
+     * Move forward to next row
      */
     public function next()
     {
@@ -110,11 +128,9 @@ class Csv implements \Countable, \Iterator
     }
 
     /**
-     * Return the key of the current element
+     * Return the key of the current row
      *
-     * @link  http://php.net/manual/en/iterator.key.php
      * @return mixed scalar on success, or null on failure.
-     * @since 5.0.0
      */
     public function key()
     {
@@ -124,10 +140,7 @@ class Csv implements \Countable, \Iterator
     /**
      * Checks if current position is valid
      *
-     * @link  http://php.net/manual/en/iterator.valid.php
      * @return boolean The return value will be casted to boolean and then evaluated.
-     * Returns true on success or false on failure.
-     * @since 5.0.0
      */
     public function valid()
     {
@@ -136,10 +149,6 @@ class Csv implements \Countable, \Iterator
 
     /**
      * Rewind the Iterator to the first element
-     *
-     * @link  http://php.net/manual/en/iterator.rewind.php
-     * @return void Any returned value is ignored.
-     * @since 5.0.0
      */
     public function rewind()
     {
@@ -147,13 +156,18 @@ class Csv implements \Countable, \Iterator
     }
 
     /**
-     * @return \ColbyGatte\CsvMan\Row[]
+     * @return \ColbyGatte\SmartCsv\Row[]
      */
     public function getRows()
     {
         return $this->rows;
     }
 
+    /**
+     * @param string $column
+     *
+     * @return array
+     */
     public function pluckFromColumn($column)
     {
         return $this->mapRows(function ($row) use ($column) {
@@ -161,6 +175,11 @@ class Csv implements \Countable, \Iterator
         });
     }
 
+    /**
+     * @param string[] $columns
+     *
+     * @return array
+     */
     public function pluckFromColumns($columns)
     {
         return $this->mapRows(function ($row) use ($columns) {

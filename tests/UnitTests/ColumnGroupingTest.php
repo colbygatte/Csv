@@ -2,8 +2,8 @@
 
 namespace Tests\UnitTests;
 
-use ColbyGatte\CsvMan\Csv;
-use ColbyGatte\CsvMan\Header;
+use ColbyGatte\SmartCsv\Csv;
+use ColbyGatte\SmartCsv\Header;
 use Tests\TestCase;
 
 class ColumnGroupingTest extends TestCase
@@ -17,11 +17,13 @@ class ColumnGroupingTest extends TestCase
         $csv = new Csv($header);
 
         $row = $csv->append(['length', '10', 'width', '20']);
-        $data = $row->getGroup('specs');
 
-        $this->assertEquals([
-            ['spec' => 'length', 'val' => '10'],
-            ['spec' => 'width', 'val' => '20']
-        ], $data);
+        $this->assertEquals(
+            [
+                ['spec' => 'length', 'val' => '10'],
+                ['spec' => 'width', 'val' => '20']
+            ],
+            $row->getGroup('specs')
+        );
     }
 }

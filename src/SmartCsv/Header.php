@@ -1,8 +1,8 @@
 <?php
 
-namespace ColbyGatte\CsvMan;
+namespace ColbyGatte\SmartCsv;
 
-use ColbyGatte\CsvMan\Helpers\ColumnGrouper;
+use ColbyGatte\SmartCsv\Helpers\ColumnGrouper;
 
 /**
  * Handles the column header for a CSV
@@ -16,31 +16,59 @@ class Header implements \Countable
      */
     protected $headerValues;
 
+    /**
+     * @var
+     */
     protected $headerValuesFlipped;
 
+    /**
+     * @var \ColbyGatte\SmartCsv\Helpers\ColumnGrouper
+     */
     protected $columnGrouper;
 
+    /**
+     * Header constructor.
+     *
+     * @param array $header
+     */
     public function __construct(array $header = [])
     {
         $this->columnGrouper = new ColumnGrouper($this);
         $this->setHeaderValues($header);
     }
 
+    /**
+     * @param $column
+     *
+     * @return null
+     */
     public function getIndexForColumn($column)
     {
         return isset($this->headerValuesFlipped[$column]) ? $this->headerValuesFlipped[$column] : null;
     }
 
+    /**
+     * @param $index
+     *
+     * @return mixed|null
+     */
     public function getColumnForIndex($index)
     {
         return isset($this->headerValues[$index]) ? $this->headerValues[$index] : null;
     }
 
+    /**
+     * @return \ColbyGatte\SmartCsv\Helpers\ColumnGrouper
+     */
     public function getColumnGrouper()
     {
         return $this->columnGrouper;
     }
 
+    /**
+     * @param       $groupName
+     * @param array $headerValuesToGroup
+     */
     public function makeGroup($groupName, array $headerValuesToGroup)
     {
         $this->columnGrouper->makeGroup($groupName, $headerValuesToGroup);
@@ -56,11 +84,9 @@ class Header implements \Countable
         return $this->headerValues;
     }
 
-    public function count()
-    {
-        return count($this->headerValues);
-    }
-
+    /**
+     * @param $headerValues
+     */
     public function setHeaderValues($headerValues)
     {
         $this->headerValues = $headerValues;
@@ -69,6 +95,17 @@ class Header implements \Countable
         $this->columnGrouper->reRunGroups();
     }
 
+    /**
+     * @return int
+     */
+    public function count()
+    {
+        return count($this->headerValues);
+    }
+
+    /**
+     * @param $column
+     */
     public function addColumn($column)
     {
         $headerValues = $this->headerValues;

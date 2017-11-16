@@ -1,8 +1,8 @@
 <?php
 
-use ColbyGatte\CsvMan\Csv;
-use ColbyGatte\CsvMan\CsvUtils;
-use ColbyGatte\CsvMan\Iterators\Sip;
+use ColbyGatte\SmartCsv\Csv;
+use ColbyGatte\SmartCsv\CsvUtils;
+use ColbyGatte\SmartCsv\Iterators\Sip;
 
 if (! function_exists('csv_sip')) {
     function csv_sip($file_path)

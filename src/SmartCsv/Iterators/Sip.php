@@ -1,10 +1,15 @@
 <?php
 
-namespace ColbyGatte\CsvMan\Iterators;
+namespace ColbyGatte\SmartCsv\Iterators;
 
-use ColbyGatte\CsvMan\Header;
-use ColbyGatte\CsvMan\Row;
+use ColbyGatte\SmartCsv\Header;
+use ColbyGatte\SmartCsv\Row;
 
+/**
+ * Class Sip
+ *
+ * @package ColbyGatte\SmartCsv
+ */
 class Sip implements \Iterator
 {
     /**
@@ -18,12 +23,20 @@ class Sip implements \Iterator
     protected $fileHandle;
 
     /**
-     * @var \ColbyGatte\CsvMan\Header
+     * @var \ColbyGatte\SmartCsv\Header
      */
     protected $header;
 
+    /**
+     * @var \ColbyGatte\SmartCsv\Row
+     */
     protected $currentRow;
 
+    /**
+     * Sip constructor.
+     *
+     * @param string $filePath
+     */
     public function __construct($filePath)
     {
         $this->filePath = $filePath;
@@ -34,7 +47,7 @@ class Sip implements \Iterator
      * Return the current element
      *
      * @link  http://php.net/manual/en/iterator.current.php
-     * @return \ColbyGatte\CsvMan\Row
+     * @return \ColbyGatte\SmartCsv\Row
      * @since 5.0.0
      */
     public function current()
@@ -43,11 +56,7 @@ class Sip implements \Iterator
     }
 
     /**
-     * Move forward to next element
-     *
-     * @link  http://php.net/manual/en/iterator.next.php
-     * @return void Any returned value is ignored.
-     * @since 5.0.0
+     * Move forward to next row
      */
     public function next()
     {
@@ -60,11 +69,9 @@ class Sip implements \Iterator
     }
 
     /**
-     * Return the key of the current element
+     * Always returns 0
      *
-     * @link  http://php.net/manual/en/iterator.key.php
-     * @return mixed scalar on success, or null on failure.
-     * @since 5.0.0
+     * @return int
      */
     public function key()
     {
@@ -74,10 +81,7 @@ class Sip implements \Iterator
     /**
      * Checks if current position is valid
      *
-     * @link  http://php.net/manual/en/iterator.valid.php
      * @return boolean The return value will be casted to boolean and then evaluated.
-     * Returns true on success or false on failure.
-     * @since 5.0.0
      */
     public function valid()
     {
@@ -86,27 +90,28 @@ class Sip implements \Iterator
 
     /**
      * Rewind the Iterator to the first element
-     *
-     * @link  http://php.net/manual/en/iterator.rewind.php
-     * @return void Any returned value is ignored.
-     * @since 5.0.0
      */
     public function rewind()
     {
         $this->initFileHandle();
     }
 
+    /**
+     *
+     */
     protected function initFileHandle()
     {
         $this->fileHandle = fopen($this->filePath, 'r');
 
-        $this->header = new Header(fgetcsv($this->fileHandle));
+        $this->header = new Header(
+            fgetcsv($this->fileHandle)
+        );
 
         $this->next();
     }
 
     /**
-     * @return \ColbyGatte\CsvMan\Header
+     * @return \ColbyGatte\SmartCsv\Header
      */
     public function getHeader()
     {

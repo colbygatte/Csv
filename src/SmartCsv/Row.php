@@ -1,21 +1,39 @@
 <?php
 
-namespace ColbyGatte\CsvMan;
+namespace ColbyGatte\SmartCsv;
 
+/**
+ * Class Row
+ *
+ * @package ColbyGatte\SmartCsv
+ */
 class Row
 {
+    /**
+     * @var array
+     */
     protected $data = [];
 
     /**
-     * @var \ColbyGatte\CsvMan\Header
+     * @var \ColbyGatte\SmartCsv\Header
      */
     protected $header;
 
+    /**
+     * Row constructor.
+     *
+     * @param \ColbyGatte\SmartCsv\Header $header
+     */
     public function __construct(Header $header)
     {
         $this->header = $header;
     }
 
+    /**
+     * @param string $delimiter
+     *
+     * @return string
+     */
     public function toCsv($delimiter = ',')
     {
         ob_start();
@@ -23,6 +41,9 @@ class Row
         return ob_get_clean();
     }
 
+    /**
+     * @return string
+     */
     public function toJson()
     {
         return json_encode($this->toAssociativeArray());
@@ -42,16 +63,28 @@ class Row
         return $array;
     }
 
+    /**
+     * @return array
+     */
     public function toAssociativeArray()
     {
         return $this->data;
     }
 
+    /**
+     * @param $name
+     *
+     * @return string|null
+     */
     public function __get($name)
     {
         return isset($this->data[$name]) ? $this->data[$name] : null;
     }
 
+    /**
+     * @param $name
+     * @param $value
+     */
     public function __set($name, $value)
     {
         $this->data[$name] = $value;
@@ -71,6 +104,11 @@ class Row
         return $this;
     }
 
+    /**
+     * @param $keyedData
+     *
+     * @return $this
+     */
     public function setKeyedData($keyedData)
     {
         $this->data = array_merge($this->data, $keyedData);
@@ -78,6 +116,11 @@ class Row
         return $this;
     }
 
+    /**
+     * @param $groupName
+     *
+     * @return array
+     */
     public function getGroup($groupName)
     {
         $returnData = [];
@@ -107,7 +150,7 @@ class Row
     }
 
     /**
-     * @return \ColbyGatte\CsvMan\Header
+     * @return \ColbyGatte\SmartCsv\Header
      */
     public function getHeader()
     {

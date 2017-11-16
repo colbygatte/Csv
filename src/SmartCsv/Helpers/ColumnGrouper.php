@@ -1,27 +1,50 @@
 <?php
 
-namespace ColbyGatte\CsvMan\Helpers;
+namespace ColbyGatte\SmartCsv\Helpers;
 
-use ColbyGatte\CsvMan\Header;
+use ColbyGatte\SmartCsv\Header;
 
+/**
+ * Class ColumnGrouper
+ *
+ * @package ColbyGatte\SmartCsv
+ */
 class ColumnGrouper
 {
     /**
-     * @var \ColbyGatte\CsvMan\Header
+     * @var \ColbyGatte\SmartCsv\Header
      */
     protected $header;
 
+    /**
+     * @var array
+     */
     protected $groupingData = [];
 
+    /**
+     * @var array
+     */
     protected $groups = [];
 
+    /**
+     * @var
+     */
     protected $originalHeaderValuesToGroup;
 
+    /**
+     * ColumnGrouper constructor.
+     *
+     * @param \ColbyGatte\SmartCsv\Header $header
+     */
     public function __construct(Header $header)
     {
         $this->header = $header;
     }
 
+    /**
+     * @param string $groupName
+     * @param array  $headerValuesToGroup
+     */
     public function makeGroup($groupName, $headerValuesToGroup)
     {
         $groups = [];
@@ -33,34 +56,33 @@ class ColumnGrouper
         $this->findGroupIndexes($groupName);
     }
 
+    /**
+     *
+     */
     public function reRunGroups()
     {
-        array_map([$this, 'findGroupIndexes'], /*group names:*/ array_keys($this->groupingData));
+        array_map(
+            [$this, 'findGroupIndexes'],
+            /*group names:*/ array_keys($this->groupingData)
+        );
     }
 
+    /**
+     * @param $groupName
+     *
+     * @return array
+     */
     public function getIndexes($groupName)
     {
         return array_values($this->groups[$groupName]);
     }
 
-    protected function makeGroupingData($headerValuesToGroup)
-    {
-        $data = [];
-
-        $lengths = array_map('strlen', $headerValuesToGroup);
-        foreach ($headerValuesToGroup as $index => $headerValueToGroup) {
-            $data[] = [
-                'length' => $lengths[$index],
-                'value' => $headerValueToGroup
-            ];
-        }
-
-        return $data;
-    }
-
+    /**
+     * @param $groupName
+     */
     protected function findGroupIndexes($groupName)
     {
-        $groups =  [];
+        $groups = [];
 
         foreach ($this->header->getHeaderValues() as $entireHeaderIndex => $entireHeaderValue) {
             foreach ($this->groupingData[$groupName] as $groupingDatum) {
@@ -81,6 +103,26 @@ class ColumnGrouper
         }
 
         $this->groups[$groupName] = $groups;
+    }
+
+    /**
+     * @param $headerValuesToGroup
+     *
+     * @return array
+     */
+    protected function makeGroupingData($headerValuesToGroup)
+    {
+        $data = [];
+
+        $lengths = array_map('strlen', $headerValuesToGroup);
+        foreach ($headerValuesToGroup as $index => $headerValueToGroup) {
+            $data[] = [
+                'length' => $lengths[$index],
+                'value' => $headerValueToGroup
+            ];
+        }
+
+        return $data;
     }
 
     /**
