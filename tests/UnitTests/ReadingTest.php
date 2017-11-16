@@ -43,4 +43,13 @@ class ReadingTest extends TestCase
 
         $this->assertCount(2, CsvUtils::slurp(__DIR__.'/test2.csv'));
     }
+
+    /** @test */
+    public function delete_test()
+    {
+        $header = new Header(['name', 'age']);
+        dump(
+            $header->missingColumns(['age', 'occupation'])
+        );
+    }
 }

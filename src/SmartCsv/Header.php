@@ -37,6 +37,11 @@ class Header implements \Countable
         $this->setHeaderValues($header);
     }
 
+    public function missingColumns($columns)
+    {
+        return array_diff($columns, $this->headerValues);
+    }
+
     /**
      * @param $column
      *

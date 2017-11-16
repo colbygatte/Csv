@@ -91,6 +91,15 @@ class Csv implements \Countable, \Iterator
         return $data;
     }
 
+    public function each(callable $callback)
+    {
+        foreach ($this as $row) {
+            $callback($row);
+        }
+
+        return $this;
+    }
+
     /**
      * @return int
      */

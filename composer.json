@@ -13,7 +13,7 @@
     "require": {},
     "autoload": {
         "psr-4": {
-            "ColbyGatte\\CsvMan\\": "src/CsvMan"
+            "ColbyGatte\\SmartCsv\\": "src/SmartCsv"
         },
         "files": [
             "utilities/helpers.php"
