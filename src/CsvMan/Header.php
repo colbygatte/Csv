@@ -2,6 +2,8 @@
 
 namespace ColbyGatte\CsvMan;
 
+use ColbyGatte\CsvMan\Helpers\ColumnGrouper;
+
 /**
  * Handles the column header for a CSV
  *
@@ -16,14 +18,32 @@ class Header implements \Countable
 
     protected $headerValuesFlipped;
 
+    protected $columnGrouper;
+
     public function __construct(array $header = [])
     {
+        $this->columnGrouper = new ColumnGrouper($this);
         $this->setHeaderValues($header);
     }
 
     public function getIndexForColumn($column)
     {
-        return isset($this->headerValuesFlipped[$column]) ? $this->headerValuesFlipped[$column] : false;
+        return isset($this->headerValuesFlipped[$column]) ? $this->headerValuesFlipped[$column] : null;
+    }
+
+    public function getColumnForIndex($index)
+    {
+        return isset($this->headerValues[$index]) ? $this->headerValues[$index] : null;
+    }
+
+    public function getColumnGrouper()
+    {
+        return $this->columnGrouper;
+    }
+
+    public function makeGroup($groupName, array $headerValuesToGroup)
+    {
+        $this->columnGrouper->makeGroup($groupName, $headerValuesToGroup);
     }
 
     /**
@@ -45,5 +65,15 @@ class Header implements \Countable
     {
         $this->headerValues = $headerValues;
         $this->headerValuesFlipped = array_flip($headerValues);
+
+        $this->columnGrouper->reRunGroups();
+    }
+
+    public function addColumn($column)
+    {
+        $headerValues = $this->headerValues;
+        $headerValues[] = $column;
+
+        $this->setHeaderValues($headerValues);
     }
 }

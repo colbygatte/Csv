@@ -4,16 +4,30 @@ namespace ColbyGatte\CsvMan;
 
 class Writer
 {
-    public static function write(Csv $csv, $fileHandle, $delimiter = ',')
+    /**
+     * @var string
+     */
+    protected $delimiter;
+
+    protected $fileHandle;
+
+    protected $filePath;
+
+    public function __construct($filePath, $delimiter = ',')
     {
-        if (! is_resource($fileHandle)) {
-            throw new \Exception('$fileHandle must be an open resource');
+        $this->filePath = $filePath;
+        $this->fileHandle = fopen($filePath, 'w');
+        $this->delimiter = $delimiter;
+    }
+
+    public function write($row)
+    {
+        if ($row instanceof Header) {
+            $row = $row->getHeaderValues();
+        } elseif ($row instanceof Row) {
+            $row = $row->toCsvArray();
         }
 
-        fputcsv($fileHandle, $csv->getHeader()->getHeaderValues(), $delimiter);
-
-        foreach ($csv as $row) {
-            fputcsv($fileHandle, $row->toCsvArray(), $delimiter);
-        }
+        fputcsv($this->fileHandle, $row, $this->delimiter);
     }
 }

@@ -3,8 +3,9 @@
 namespace Tests\UnitTests;
 
 use ColbyGatte\CsvMan\Csv;
+use ColbyGatte\CsvMan\Header;
 use ColbyGatte\CsvMan\Row;
-use ColbyGatte\CsvMan\Writer;
+use ColbyGatte\CsvMan\CsvUtils;
 use Tests\TestCase;
 
 class BasicCsvTest extends TestCase
@@ -46,6 +47,70 @@ class BasicCsvTest extends TestCase
 
         $csv->appendRow($row);
 
-        Writer::write($csv, fopen('/tmp/_csv.csv', 'w'));
+        CsvUtils::write($csv, '/tmp/_csv.csv');
+
+        $this->assertEquals(
+            "name,age\n" .
+            "Colby,26\n",
+            file_get_contents('/tmp/_csv.csv')
+        );
+    }
+
+    /** @test */
+    public function using_mass_set_data_on_row_does_not_override_all_data()
+    {
+        $header = new Header(['name', 'age', 'occupation']);
+        $row = new Row($header);
+
+        $row->name = 'Colby';
+        $row->setKeyedData([
+            'age' => 26,
+            'occupation' => 'developer'
+        ]);
+
+        $this->assertEquals(
+            ['Colby', 26, 'developer'],
+            $row->toCsvArray()
+        );
+    }
+
+    /** @test */
+    public function can_map_rows()
+    {
+        $csv = new Csv(['name', 'age']);
+        $csv->append(['Colby', 26]);
+        $csv->append(['Evan', 22]);
+
+        $ages = $csv->pluckFromColumn('age');
+
+        $this->assertEquals([26, 22], $ages);
+    }
+
+    /** @test */
+    public function can_pluck()
+    {
+        $csv = new Csv(['name', 'age', 'occupation']);
+        $csv->append(['Colby', 26, 'developer']);
+        $csv->append(['Evan', 22, 'scaffold builder']);
+
+        $data = $csv->pluckFromColumns(['name', 'occupation']);
+
+        $this->assertEquals([
+            ['name' => 'Colby', 'occupation' => 'developer'],
+            ['name' => 'Evan', 'occupation' => 'scaffold builder']
+        ], $data);
+    }
+
+    /** @test */
+    public function can_add_column_to_headers()
+    {
+        $header = new Header(['name', 'age']);
+        $csv = new Csv($header);
+        $row = new Row($header);
+        $row->setKeyedData(['name' => 'Colby', 'age' => 26]);
+
+        $header->addColumn('occupation');
+
+        $this->assertEquals(['Colby', 26, null], $row->toCsvArray());
     }
 }

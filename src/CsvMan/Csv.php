@@ -11,7 +11,7 @@ class Csv implements \Countable, \Iterator
 
     protected $rows = [];
 
-    public function __construct(array $header = null)
+    public function __construct($header = null)
     {
         if ($header) {
             $this->setHeader($header);
@@ -29,22 +29,25 @@ class Csv implements \Countable, \Iterator
     /**
      * @param array $header
      */
-    public function setHeader(array $header)
+    public function setHeader($header)
     {
-        $this->header = new Header($header);
+        $this->header = $header instanceof Header ? $header : new Header($header);
 
         return $this;
     }
 
+    /**
+     * @param array $data
+     *
+     * @return \ColbyGatte\CsvMan\Row
+     */
     public function append(array $data)
     {
         if (count($data) != count($this->header)) {
             $data = array_pad($data, count($this->header), '');
         }
 
-        $row = (new Row($this->header))->setData(
-            array_combine($this->header->getHeaderValues(), $data)
-        );
+        $row = (new Row($this->header))->setUnkeyedData($data);
 
         $this->rows[] = $row;
 
@@ -53,12 +56,33 @@ class Csv implements \Countable, \Iterator
 
     public function appendRow(Row $row)
     {
+        if ($row->getHeader() !== $this->header) {
+            throw new \Exception('Row header and csv header do not match');
+        }
         $this->rows[] = $row;
+    }
+
+    public function mapRows(callable $callback)
+    {
+        $data = [];
+
+        foreach ($this as $row) {
+            $data[] = $callback($row);
+        }
+
+        return $data;
     }
 
     public function count()
     {
         return count($this->rows);
+    }
+
+    public function toJson()
+    {
+        return json_encode($this->mapRows(function (Row $row) {
+            return $row->toAssociativeArray();
+        }));
     }
 
     /**
@@ -120,5 +144,33 @@ class Csv implements \Countable, \Iterator
     public function rewind()
     {
         reset($this->rows);
+    }
+
+    /**
+     * @return \ColbyGatte\CsvMan\Row[]
+     */
+    public function getRows()
+    {
+        return $this->rows;
+    }
+
+    public function pluckFromColumn($column)
+    {
+        return $this->mapRows(function ($row) use ($column) {
+            return $row->$column;
+        });
+    }
+
+    public function pluckFromColumns($columns)
+    {
+        return $this->mapRows(function ($row) use ($columns) {
+            $data = [];
+
+            foreach ($columns as $column) {
+                $data[$column] = $row->$column;
+            }
+
+            return $data;
+        });
     }
 }
