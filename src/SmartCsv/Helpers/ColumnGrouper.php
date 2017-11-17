@@ -61,10 +61,9 @@ class ColumnGrouper
      */
     public function reRunGroups()
     {
-        array_map(
-            [$this, 'findGroupIndexes'],
-            /*group names:*/ array_keys($this->groupingData)
-        );
+        $groups = array_keys($this->groupingData);
+
+        array_map([$this, 'findGroupIndexes'], $groups);
     }
 
     /**

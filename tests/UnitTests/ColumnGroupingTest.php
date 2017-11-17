@@ -18,12 +18,9 @@ class ColumnGroupingTest extends TestCase
 
         $row = $csv->append(['length', '10', 'width', '20']);
 
-        $this->assertEquals(
-            [
-                ['spec' => 'length', 'val' => '10'],
-                ['spec' => 'width', 'val' => '20']
-            ],
-            $row->getGroup('specs')
-        );
+        $this->assertEquals([
+            ['spec' => 'length', 'val' => '10'],
+            ['spec' => 'width', 'val' => '20']
+        ], $row->getGroup('specs'));
     }
 }
