@@ -44,6 +44,16 @@ class CsvUtils
     }
 
     /**
+     * @param string $filePath
+     *
+     * @return \ColbyGatte\SmartCsv\Iterators\Sip
+     */
+    public static function sip($filePath)
+    {
+        return new Sip($filePath);
+    }
+
+    /**
      * @param          $originalFilePath
      * @param          $alteredFilePath
      * @param callable $callback
