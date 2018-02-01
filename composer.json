@@ -1,5 +1,5 @@
 {
-    "name": "colbygatte/csv-man",
+    "name": "colbygatte/csv",
     "require-dev": {
         "phpunit/phpunit": "^6.4",
         "symfony/var-dumper": "^3.3"

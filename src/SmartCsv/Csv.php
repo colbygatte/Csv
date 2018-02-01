@@ -7,7 +7,7 @@ namespace ColbyGatte\SmartCsv;
  *
  * @package ColbyGatte\SmartCsv
  */
-class Csv implements \Countable, \Iterator
+class Csv extends CsvUtils implements \Countable, \Iterator
 {
     /**
      * @var \ColbyGatte\SmartCsv\Header

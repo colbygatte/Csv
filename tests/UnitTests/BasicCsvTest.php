@@ -105,7 +105,6 @@ class BasicCsvTest extends TestCase
     public function can_add_column_to_headers()
     {
         $header = new Header(['name', 'age']);
-        $csv = new Csv($header);
         $row = new Row($header);
         $row->setKeyedData(['name' => 'Colby', 'age' => 26]);
 
