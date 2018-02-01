@@ -2,7 +2,6 @@
 
 namespace Tests\UnitTests;
 
-use ColbyGatte\SmartCsv\Csv;
 use ColbyGatte\SmartCsv\CsvUtils;
 use ColbyGatte\SmartCsv\Header;
 use ColbyGatte\SmartCsv\Iterators\Sip;

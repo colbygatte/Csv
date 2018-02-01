@@ -36,7 +36,7 @@ class CsvUtils
 
         $csv = new Csv(fgetcsv($fileHandle));
 
-        while(false !== ($data = fgetcsv($fileHandle))) {
+        while (false !== ($data = fgetcsv($fileHandle))) {
             $csv->append($data);
         }
 
@@ -49,7 +49,8 @@ class CsvUtils
      * @param callable $callback
      * @param string   $delimiter
      */
-    public static function alter($originalFilePath, $alteredFilePath, callable $callback, $delimiter = ',') {
+    public static function alter($originalFilePath, $alteredFilePath, callable $callback, $delimiter = ',')
+    {
         $sip = new Sip($originalFilePath);
         $writer = new Writer($alteredFilePath, $delimiter);
         $writer->write($sip->getHeader());

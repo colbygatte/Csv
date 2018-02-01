@@ -47,8 +47,6 @@ class ColumnGrouper
      */
     public function makeGroup($groupName, $headerValuesToGroup)
     {
-        $groups = [];
-
         $this->groupingData[$groupName] = $this->makeGroupingData($headerValuesToGroup);
 
         $this->originalHeaderValuesToGroup[$groupName] = $headerValuesToGroup;
