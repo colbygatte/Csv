@@ -101,6 +101,8 @@ class Row
             $this->header->getHeaderValues(), $unkeyedData
         );
 
+        $this->initializeAllKeys();
+
         return $this;
     }
 
@@ -113,7 +115,18 @@ class Row
     {
         $this->data = array_merge($this->data, $keyedData);
 
+        $this->initializeAllKeys();
+
         return $this;
+    }
+
+    protected function initializeAllKeys()
+    {
+        foreach ($this->header->getHeaderValues() as $index => $name) {
+            if (! isset($this->data[$name])) {
+                $this->data[$name] = '';
+            }
+        }
     }
 
     /**
@@ -127,20 +140,12 @@ class Row
 
         $columnGrouper = $this->header->getColumnGrouper();
         $indexGroups = $columnGrouper->getIndexes($groupName);
-        $originalValuesToGroup = $columnGrouper->getOriginalHeaderValuesToGroup($groupName);
 
         foreach ($indexGroups as $indexGroup) {
             $subData = [];
 
             foreach ($indexGroup as $valueName => $index) {
                 $subData[$valueName] = $this->data[$this->header->getColumnForIndex($index)];
-            }
-
-            // Make sure all possible keys are initialized.
-            foreach ($originalValuesToGroup as $value) {
-                if (! isset($subData[$value])) {
-                    $subData[$value] = '';
-                }
             }
 
             $returnData[] = $subData;

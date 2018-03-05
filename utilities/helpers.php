@@ -2,6 +2,7 @@
 
 use ColbyGatte\SmartCsv\Csv;
 use ColbyGatte\SmartCsv\CsvUtils;
+use ColbyGatte\SmartCsv\Header;
 use ColbyGatte\SmartCsv\Iterators\Sip;
 
 if (! defined('CSV_FUNCTIONS') || ! CSV_FUNCTIONS) {
