@@ -38,7 +38,7 @@ class Row
     {
         ob_start();
 
-        fputcsv(fopen('php://output', 'w'), $this->toAssociativeArray(), $delimiter);
+        fputcsv(fopen('php://output', 'w'), $this->toDictionary(), $delimiter);
 
         return ob_get_clean();
     }
@@ -48,7 +48,7 @@ class Row
      */
     public function toJson()
     {
-        return json_encode($this->toAssociativeArray());
+        return json_encode($this->toDictionary());
     }
 
     /**
@@ -119,7 +119,11 @@ class Row
      */
     public function __toString()
     {
-        return $this->getAsString();
+        try {
+            return $this->toString();
+        } catch (Exception $e) {
+            return '';
+        }
     }
 
     /**
@@ -127,7 +131,7 @@ class Row
      *
      * @param $unkeyedData
      */
-    public function setUnkeyed($unkeyedData)
+    public function set($unkeyedData)
     {
         $this->data = array_combine(
             $this->header->getHeaderValues(),

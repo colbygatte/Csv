@@ -23,6 +23,9 @@ class Csv extends CsvUtils implements Countable, Iterator
      */
     protected $rows = [];
 
+    /**
+     * @param null|\ColbyGatte\SmartCsv\Header $header
+     */
     public function __construct($header = null)
     {
         if ($header) {
@@ -55,8 +58,20 @@ class Csv extends CsvUtils implements Countable, Iterator
      */
     public function append(array $data)
     {
-        return $this->rows[] = (new Row($this->header))->setUnkeyed(
+        return $this->rows[] = (new Row($this->header))->set(
             array_pad($data, count($this->header), '')
+        );
+    }
+
+    /**
+     * @param array $data
+     *
+     * @return \ColbyGatte\SmartCsv\Row
+     */
+    public function appendKeyed(array $data)
+    {
+        return $this->rows[] = (new Row($this->header))->setKeyed(
+            $data
         );
     }
 
@@ -115,7 +130,7 @@ class Csv extends CsvUtils implements Countable, Iterator
     public function toJson()
     {
         return json_encode($this->map(function (Row $row) {
-            return $row->toAssociativeArray();
+            return $row->toDictionary();
         }));
     }
 

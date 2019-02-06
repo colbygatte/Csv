@@ -91,7 +91,7 @@ class File
      */
     public function open($mode = 'r')
     {
-        if (is_resource($this->handle)) {
+        if ($this->isOpen()) {
             throw new Exception('CSV file already opened.');
         }
 

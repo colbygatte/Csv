@@ -3,9 +3,9 @@
 namespace Tests\UnitTests;
 
 use ColbyGatte\SmartCsv\Csv;
+use ColbyGatte\SmartCsv\CsvUtils;
 use ColbyGatte\SmartCsv\Header;
 use ColbyGatte\SmartCsv\Row;
-use ColbyGatte\SmartCsv\CsvUtils;
 use Tests\TestCase;
 
 class BasicCsvTest extends TestCase
@@ -37,6 +37,17 @@ class BasicCsvTest extends TestCase
     }
 
     /** @test */
+    public function can_append_row_using_keyed_array_and_will_pad_array_if_enough_values_are_not_passed()
+    {
+        $csv = new Csv(['name', 'age']);
+        $row = $csv->appendKeyed(['name' => 'Colby']);
+
+        $this->assertEquals('Colby', $row->name);
+        $this->assertEquals('', $row->age);
+        $this->assertCount(1, $csv);
+    }
+
+    /** @test */
     public function can_write_to_file()
     {
         $csv = new Csv(['name', 'age']);
@@ -50,22 +61,22 @@ class BasicCsvTest extends TestCase
         CsvUtils::write($csv, '/tmp/_csv.csv');
 
         $this->assertEquals(
-            "name,age\n" .
-            "Colby,26\n",
+            "name,age\nColby,26\n",
             file_get_contents('/tmp/_csv.csv')
         );
     }
 
     /** @test */
-    public function using_mass_set_data_on_row_does_not_override_all_data()
+    public function using_mass_set_data_on_row_does_not_overwrite_all_data()
     {
-        $header = new Header(['name', 'age', 'occupation']);
-        $row = new Row($header);
+        $row = new Row(new Header([
+            'name', 'age', 'occupation',
+        ]));
 
         $row->name = 'Colby';
         $row->setKeyed([
             'age' => 26,
-            'occupation' => 'developer'
+            'occupation' => 'developer',
         ]);
 
         $this->assertEquals(
@@ -97,7 +108,7 @@ class BasicCsvTest extends TestCase
 
         $this->assertEquals([
             ['name' => 'Colby', 'occupation' => 'developer'],
-            ['name' => 'Evan', 'occupation' => 'scaffold builder']
+            ['name' => 'Evan', 'occupation' => 'scaffold builder'],
         ], $data);
     }
 
@@ -116,9 +127,11 @@ class BasicCsvTest extends TestCase
     /** @test */
     public function can_get_certain_values_from_row()
     {
-        $header = new Header(['name', 'age', 'food']);
-        $row = new Row($header);
-        $row->setKeyed(['name' => 'Colby', 'age' => 26, 'food' => 'pizza']);
+        $row = (new Row(new Header(['name', 'age', 'food'])))->setKeyed([
+            'name' => 'Colby',
+            'age' => 26,
+            'food' => 'pizza',
+        ]);
 
         $this->assertEquals(
             ['name' => 'Colby'],

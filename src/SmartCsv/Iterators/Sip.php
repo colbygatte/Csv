@@ -2,16 +2,17 @@
 
 namespace ColbyGatte\SmartCsv\Iterators;
 
-use ColbyGatte\SmartCsv\CsvUtils;
-use ColbyGatte\SmartCsv\Header;
+use Iterator;
 use ColbyGatte\SmartCsv\Row;
+use ColbyGatte\SmartCsv\Header;
+use ColbyGatte\SmartCsv\CsvUtils;
 
 /**
  * Class Sip
  *
  * @package ColbyGatte\SmartCsv
  */
-class Sip implements \Iterator
+class Sip implements Iterator
 {
     /**
      * @var string
@@ -74,7 +75,7 @@ class Sip implements \Iterator
     {
         if (($data = $this->file->read()) !== false) {
             $this->currentRow = new Row($this->header);
-            $this->currentRow->setUnkeyed($data);
+            $this->currentRow->set($data);
         } else {
             $this->currentRow = null;
         }
