@@ -34,12 +34,30 @@ class Header implements \Countable
     public function __construct(array $header = [])
     {
         $this->columnGrouper = new ColumnGrouper($this);
+
         $this->setHeaderValues($header);
     }
 
+    /**
+     * Return all the columsn that are present in $columns but not in $this->headerValues.
+     *
+     * @param string[] $columns
+     * @return string[]
+     */
     public function missingColumns($columns)
     {
         return array_diff($columns, $this->headerValues);
+    }
+
+    /**
+     * Check if header key exists.
+     *
+     * @param string $key
+     * @return boolean
+     */
+    public function has($key)
+    {
+        return isset($this->headerValuesFlipped[$key]);
     }
 
     /**

@@ -27,7 +27,7 @@ class ColumnGrouper
     protected $groups = [];
 
     /**
-     * @var
+     * @var array
      */
     protected $originalHeaderValuesToGroup;
 
@@ -44,6 +44,7 @@ class ColumnGrouper
     /**
      * @param string $groupName
      * @param array  $headerValuesToGroup
+     * @return void
      */
     public function makeGroup($groupName, $headerValuesToGroup)
     {
@@ -55,7 +56,7 @@ class ColumnGrouper
     }
 
     /**
-     *
+     * @return void
      */
     public function reRunGroups()
     {

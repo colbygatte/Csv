@@ -16,9 +16,9 @@ class CsvUtils
      * @param                          $filePath
      * @param string                   $delimiter
      */
-    public static function write(Csv $csv, $filePath, $delimiter = ',')
+    public static function write(Csv $csv, $file)
     {
-        $writer = new Writer($filePath, $delimiter);
+        $writer = new Writer($file);
         $writer->write($csv->getHeader());
         foreach ($csv as $row) {
             $writer->write($row);
@@ -30,13 +30,15 @@ class CsvUtils
      *
      * @return \ColbyGatte\SmartCsv\Csv
      */
-    public static function slurp($filePath)
+    public static function slurp($file)
     {
-        $fileHandle = fopen($filePath, 'r');
+        $file = static::file($file);
 
-        $csv = new Csv(fgetcsv($fileHandle));
+        $file->open('r');
 
-        while (false !== ($data = fgetcsv($fileHandle))) {
+        $csv = new Csv($file->read());
+
+        while (false !== ($data = $file->read())) {
             $csv->append($data);
         }
 
@@ -48,9 +50,9 @@ class CsvUtils
      *
      * @return \ColbyGatte\SmartCsv\Iterators\Sip
      */
-    public static function sip($filePath)
+    public static function sip($file)
     {
-        return new Sip($filePath);
+        return new Sip($file);
     }
 
     /**
@@ -59,10 +61,10 @@ class CsvUtils
      * @param callable $callback
      * @param string   $delimiter
      */
-    public static function alter($originalFilePath, $alteredFilePath, callable $callback, $delimiter = ',')
+    public static function alter($originalFile, $alteredFile, callable $callback)
     {
-        $sip = new Sip($originalFilePath);
-        $writer = new Writer($alteredFilePath, $delimiter);
+        $sip = new Sip($originalFile);
+        $writer = new Writer($alteredFile);
         $writer->write($sip->getHeader());
 
         foreach ($sip as $row) {
@@ -70,5 +72,25 @@ class CsvUtils
                 $writer->write($row);
             }
         }
+    }
+
+    /**
+     * Get an instance of File. If $file is already a file, make sure it is closed
+     * and return the same instance.
+     *
+     * @param string|\ColbyGatte\SmartCsv\File
+     * @return \ColbyGatte\SmartCsv\File
+     */
+    public static function file($file)
+    {
+        if ($file instanceof File) {
+            if ($file->isOpen()) {
+                $file->close();
+            }
+
+            return $file;
+        }
+
+        return new File($file);
     }
 }

@@ -30,7 +30,7 @@ class ColumnGroupingTest extends TestCase
     {
         $row = new Row(new Header(['age1', 'name1', 'age2', 'name2']));
         $row->getHeader()->makeGroup('stuff', ['name', 'age']);
-        $row->setKeyedData([
+        $row->setKeyed([
             'age1' => '27',
             'name1' => 'Colby',
         ]);

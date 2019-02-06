@@ -34,10 +34,12 @@ class Row
      *
      * @return string
      */
-    public function toCsv($delimiter = ',')
+    public function toString($delimiter = ',')
     {
         ob_start();
+
         fputcsv(fopen('php://output', 'w'), $this->toAssociativeArray(), $delimiter);
+
         return ob_get_clean();
     }
 
@@ -52,23 +54,36 @@ class Row
     /**
      * @return array
      */
-    public function toCsvArray()
+    public function toArray()
     {
-        $array = [];
-
-        foreach ($this->header->getHeaderValues() as $value) {
-            $array[] = $this->__get($value);
-        }
-
-        return $array;
+        return array_map([$this, '__get'], $this->header->getHeaderValues());
     }
 
     /**
      * @return array
      */
-    public function toAssociativeArray()
+    public function toDictionary()
     {
         return $this->data;
+    }
+
+    /**
+     * Get certain values by key. Default is only used when
+     * a key is not in the header.
+     *
+     * @param [type] $keys
+     * @param [type] $default
+     * @return void
+     */
+    public function only($keys, $default = null)
+    {
+        $data = [];
+
+        foreach ((array) $keys as $key) {
+            $data[$key] = $this->header->has($key) ? $this->__get($key) : $default;
+        }
+
+        return $data;
     }
 
     /**
@@ -91,17 +106,35 @@ class Row
     }
 
     /**
+     * @param $name
+     * @return boolean
+     */
+    public function __isset($name)
+    {
+        return isset($this->data[$name]);
+    }
+
+    /**
+     * @return string
+     */
+    public function __toString()
+    {
+        return $this->getAsString();
+    }
+
+    /**
      * Important: This overwrites any data on the row
      *
      * @param $unkeyedData
      */
-    public function setUnkeyedData($unkeyedData)
+    public function setUnkeyed($unkeyedData)
     {
         $this->data = array_combine(
-            $this->header->getHeaderValues(), $unkeyedData
+            $this->header->getHeaderValues(),
+            $unkeyedData
         );
 
-        $this->initializeAllKeys();
+        $this->initKeys();
 
         return $this;
     }
@@ -111,22 +144,21 @@ class Row
      *
      * @return $this
      */
-    public function setKeyedData($keyedData)
+    public function setKeyed($keyedData)
     {
         $this->data = array_merge($this->data, $keyedData);
 
-        $this->initializeAllKeys();
+        $this->initKeys();
 
         return $this;
     }
 
-    protected function initializeAllKeys()
+    /**
+     * @return \ColbyGatte\SmartCsv\Header
+     */
+    public function getHeader()
     {
-        foreach ($this->header->getHeaderValues() as $index => $name) {
-            if (! isset($this->data[$name])) {
-                $this->data[$name] = '';
-            }
-        }
+        return $this->header;
     }
 
     /**
@@ -154,11 +186,12 @@ class Row
         return $returnData;
     }
 
-    /**
-     * @return \ColbyGatte\SmartCsv\Header
-     */
-    public function getHeader()
+    protected function initKeys()
     {
-        return $this->header;
+        foreach ($this->header->getHeaderValues() as $index => $name) {
+            if (! isset($this->data[$name])) {
+                $this->data[$name] = '';
+            }
+        }
     }
 }

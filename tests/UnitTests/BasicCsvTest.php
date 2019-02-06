@@ -21,7 +21,7 @@ class BasicCsvTest extends TestCase
 
         $this->assertEquals(
             ['Colby', 26],
-            $row->toCsvArray()
+            $row->toArray()
         );
     }
 
@@ -63,14 +63,14 @@ class BasicCsvTest extends TestCase
         $row = new Row($header);
 
         $row->name = 'Colby';
-        $row->setKeyedData([
+        $row->setKeyed([
             'age' => 26,
             'occupation' => 'developer'
         ]);
 
         $this->assertEquals(
             ['Colby', 26, 'developer'],
-            $row->toCsvArray()
+            $row->toArray()
         );
     }
 
@@ -81,7 +81,7 @@ class BasicCsvTest extends TestCase
         $csv->append(['Colby', 26]);
         $csv->append(['Evan', 22]);
 
-        $ages = $csv->pluckFromColumn('age');
+        $ages = $csv->pluckColumn('age');
 
         $this->assertEquals([26, 22], $ages);
     }
@@ -93,7 +93,7 @@ class BasicCsvTest extends TestCase
         $csv->append(['Colby', 26, 'developer']);
         $csv->append(['Evan', 22, 'scaffold builder']);
 
-        $data = $csv->pluckFromColumns(['name', 'occupation']);
+        $data = $csv->pluckColumns(['name', 'occupation']);
 
         $this->assertEquals([
             ['name' => 'Colby', 'occupation' => 'developer'],
@@ -106,10 +106,38 @@ class BasicCsvTest extends TestCase
     {
         $header = new Header(['name', 'age']);
         $row = new Row($header);
-        $row->setKeyedData(['name' => 'Colby', 'age' => 26]);
+        $row->setKeyed(['name' => 'Colby', 'age' => 26]);
 
         $header->addColumn('occupation');
 
-        $this->assertEquals(['Colby', 26, null], $row->toCsvArray());
+        $this->assertEquals(['Colby', 26, null], $row->toArray());
+    }
+
+    /** @test */
+    public function can_get_certain_values_from_row()
+    {
+        $header = new Header(['name', 'age', 'food']);
+        $row = new Row($header);
+        $row->setKeyed(['name' => 'Colby', 'age' => 26, 'food' => 'pizza']);
+
+        $this->assertEquals(
+            ['name' => 'Colby'],
+            $row->only('name')
+        );
+
+        $this->assertEquals(
+            ['location' => 'Louisiana'],
+            $row->only('location', 'Louisiana')
+        );
+
+        $this->assertEquals(
+            ['name' => 'Colby', 'location' => 'NOT_SET'],
+            $row->only(['name', 'location'], 'NOT_SET')
+        );
+
+        $this->assertSame(
+            ['age' => 26, 'name' => 'Colby'],
+            $row->only(['age', 'name'])
+        );
     }
 }

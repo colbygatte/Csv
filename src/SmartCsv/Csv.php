@@ -2,12 +2,16 @@
 
 namespace ColbyGatte\SmartCsv;
 
+use Countable;
+use Exception;
+use Iterator;
+
 /**
  * Class Csv
  *
  * @package ColbyGatte\SmartCsv
  */
-class Csv extends CsvUtils implements \Countable, \Iterator
+class Csv extends CsvUtils implements Countable, Iterator
 {
     /**
      * @var \ColbyGatte\SmartCsv\Header
@@ -35,7 +39,7 @@ class Csv extends CsvUtils implements \Countable, \Iterator
     }
 
     /**
-     * @param array $header
+     * @param \ColbyGatte\SmartCsv\Header|array $header
      */
     public function setHeader($header)
     {
@@ -51,15 +55,9 @@ class Csv extends CsvUtils implements \Countable, \Iterator
      */
     public function append(array $data)
     {
-        if (count($data) != count($this->header)) {
-            $data = array_pad($data, count($this->header), '');
-        }
-
-        $row = (new Row($this->header))->setUnkeyedData($data);
-
-        $this->rows[] = $row;
-
-        return $row;
+        return $this->rows[] = (new Row($this->header))->setUnkeyed(
+            array_pad($data, count($this->header), '')
+        );
     }
 
     /**
@@ -70,8 +68,9 @@ class Csv extends CsvUtils implements \Countable, \Iterator
     public function appendRow(Row $row)
     {
         if ($row->getHeader() !== $this->header) {
-            throw new \Exception('Row header and csv header do not match');
+            throw new Exception('Row header and csv header do not match');
         }
+
         $this->rows[] = $row;
     }
 
@@ -80,7 +79,7 @@ class Csv extends CsvUtils implements \Countable, \Iterator
      *
      * @return array
      */
-    public function mapRows(callable $callback)
+    public function map(callable $callback)
     {
         $data = [];
 
@@ -94,7 +93,9 @@ class Csv extends CsvUtils implements \Countable, \Iterator
     public function each(callable $callback)
     {
         foreach ($this as $row) {
-            $callback($row);
+            if ($callback($row) === false) {
+                break;
+            }
         }
 
         return $this;
@@ -113,7 +114,7 @@ class Csv extends CsvUtils implements \Countable, \Iterator
      */
     public function toJson()
     {
-        return json_encode($this->mapRows(function (Row $row) {
+        return json_encode($this->map(function (Row $row) {
             return $row->toAssociativeArray();
         }));
     }
@@ -177,11 +178,9 @@ class Csv extends CsvUtils implements \Countable, \Iterator
      *
      * @return array
      */
-    public function pluckFromColumn($column)
+    public function pluckColumn($column)
     {
-        return $this->mapRows(function ($row) use ($column) {
-            return $row->$column;
-        });
+        return array_column($this->rows, $column);
     }
 
     /**
@@ -189,9 +188,9 @@ class Csv extends CsvUtils implements \Countable, \Iterator
      *
      * @return array
      */
-    public function pluckFromColumns($columns)
+    public function pluckColumns($columns)
     {
-        return $this->mapRows(function ($row) use ($columns) {
+        return $this->map(function ($row) use ($columns) {
             $data = [];
 
             foreach ($columns as $column) {

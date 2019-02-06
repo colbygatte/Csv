@@ -10,19 +10,9 @@ namespace ColbyGatte\SmartCsv;
 class Writer
 {
     /**
-     * @var string
+     * @var File
      */
-    protected $delimiter;
-
-    /**
-     * @var bool|resource
-     */
-    protected $fileHandle;
-
-    /**
-     * @var string
-     */
-    protected $filePath;
+    protected $file;
 
     /**
      * Writer constructor.
@@ -30,11 +20,11 @@ class Writer
      * @param string $filePath
      * @param string $delimiter
      */
-    public function __construct($filePath, $delimiter = ',')
+    public function __construct($file)
     {
-        $this->filePath = $filePath;
-        $this->fileHandle = fopen($filePath, 'w');
-        $this->delimiter = $delimiter;
+        $this->file = CsvUtils::file($file);
+
+        $this->file->open('w');
     }
 
     /**
@@ -45,9 +35,9 @@ class Writer
         if ($row instanceof Header) {
             $row = $row->getHeaderValues();
         } elseif ($row instanceof Row) {
-            $row = $row->toCsvArray();
+            $row = $row->toArray();
         }
 
-        fputcsv($this->fileHandle, $row, $this->delimiter);
+        $this->file->write($row);
     }
 }
