@@ -12,29 +12,32 @@ class ColumnGroupingTest extends TestCase
     /** @test */
     public function can_group()
     {
-        $header = new Header(['spec1', 'val1', 'spec2', 'val2']);
-        $header->makeGroup('specs', ['spec', 'val']);
+        $header = Header::with(['spec1', 'val1', 'spec2', 'val2'])
+            ->makeGroup('specs', ['spec', 'val']);
 
-        $specs = (new Csv($header))
-            ->append(['length', '10', 'width', '20'])
-            ->getGroup('specs');
+        $row = Csv::with($header)
+            ->append(['length', '10', 'width', '20']);
 
         $this->assertEquals([
             ['spec' => 'length', 'val' => '10'],
-            ['spec' => 'width', 'val' => '20']
-        ], $specs);
+            ['spec' => 'width', 'val' => '20'],
+        ], $row->getGroup('specs'));
     }
 
     /** @test */
     public function initializes_keys_when_no_data_exists_for_group()
     {
-        $row = new Row(new Header(['age1', 'name1', 'age2', 'name2']));
-        $row->getHeader()->makeGroup('stuff', ['name', 'age']);
-        $row->setKeyed([
-            'age1' => '27',
-            'name1' => 'Colby',
-        ]);
+        $row = Row::with(Header::with(['age1', 'name1', 'age2', 'name2']))
+            ->setKeyed([
+                'age1' => '27',
+                'name1' => 'Colby',
+            ]);
 
-        $this->assertCount(2, $row->getGroup('stuff'));
+        $row->header()->makeGroup('stuff', ['name', 'age']);
+
+        $this->assertEquals(
+            [['age' => '27', 'name' => 'Colby'], ['age' => '', 'name' => '']],
+            $row->getGroup('stuff')
+        );
     }
 }

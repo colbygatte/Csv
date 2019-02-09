@@ -5,11 +5,11 @@ namespace ColbyGatte\SmartCsv;
 use ColbyGatte\SmartCsv\Iterators\Sip;
 
 /**
- * Class CsvUtils
+ * Class Utils
  *
  * @package ColbyGatte\SmartCsv
  */
-class CsvUtils
+class Utils
 {
     /**
      * @param \ColbyGatte\SmartCsv\Csv $csv
@@ -19,7 +19,9 @@ class CsvUtils
     public static function write(Csv $csv, $file)
     {
         $writer = new Writer($file);
-        $writer->write($csv->getHeader());
+
+        $writer->write($csv->header());
+
         foreach ($csv as $row) {
             $writer->write($row);
         }
@@ -34,7 +36,7 @@ class CsvUtils
     {
         $file = static::file($file);
 
-        $file->open('r');
+        $file->openRead();
 
         $csv = new Csv($file->read());
 
@@ -56,21 +58,19 @@ class CsvUtils
     }
 
     /**
-     * @param          $originalFilePath
-     * @param          $alteredFilePath
+     * @param          $original
+     * @param          $new
      * @param callable $callback
      * @param string   $delimiter
      */
-    public static function alter($originalFile, $alteredFile, callable $callback)
+    public static function alter($original, $new, callable $callback)
     {
-        $sip = new Sip($originalFile);
-        $writer = new Writer($alteredFile);
-        $writer->write($sip->getHeader());
+        $sip = new Sip($original);
+        $writer = new Writer($new);
+        $writer->write($sip->header());
 
         foreach ($sip as $row) {
-            if ($callback($row) !== false) {
-                $writer->write($row);
-            }
+            false !== $callback($row) ? $writer->write($row) : null;
         }
     }
 

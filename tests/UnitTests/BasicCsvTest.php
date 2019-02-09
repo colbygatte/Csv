@@ -3,9 +3,9 @@
 namespace Tests\UnitTests;
 
 use ColbyGatte\SmartCsv\Csv;
-use ColbyGatte\SmartCsv\CsvUtils;
 use ColbyGatte\SmartCsv\Header;
 use ColbyGatte\SmartCsv\Row;
+use ColbyGatte\SmartCsv\Utils;
 use Tests\TestCase;
 
 class BasicCsvTest extends TestCase
@@ -15,7 +15,7 @@ class BasicCsvTest extends TestCase
     {
         $csv = new Csv(['name', 'age']);
 
-        $row = new Row($csv->getHeader());
+        $row = new Row($csv->header());
         $row->age = 26;
         $row->name = 'Colby';
 
@@ -50,19 +50,17 @@ class BasicCsvTest extends TestCase
     /** @test */
     public function can_write_to_file()
     {
-        $csv = new Csv(['name', 'age']);
+        $csv = Csv::with(['name', 'age']);
 
-        $row = new Row($csv->getHeader());
+        $row = $csv->append();
         $row->age = 26;
         $row->name = 'Colby';
 
-        $csv->appendRow($row);
-
-        CsvUtils::write($csv, '/tmp/_csv.csv');
+        Utils::write($csv, $file = tempnam(sys_get_temp_dir(), 'csv_test_'));
 
         $this->assertEquals(
             "name,age\nColby,26\n",
-            file_get_contents('/tmp/_csv.csv')
+            file_get_contents($file)
         );
     }
 
@@ -115,19 +113,21 @@ class BasicCsvTest extends TestCase
     /** @test */
     public function can_add_column_to_headers()
     {
-        $header = new Header(['name', 'age']);
-        $row = new Row($header);
-        $row->setKeyed(['name' => 'Colby', 'age' => 26]);
+        $row = Row::with(Header::with(['name', 'age']))
+            ->setKeyed(['name' => 'Colby', 'age' => 26]);
 
-        $header->addColumn('occupation');
+        $row->header()->addColumn('occupation');
 
-        $this->assertEquals(['Colby', 26, null], $row->toArray());
+        $this->assertEquals(
+            ['Colby', 26, null],
+            $row->toArray()
+        );
     }
 
     /** @test */
     public function can_get_certain_values_from_row()
     {
-        $row = (new Row(new Header(['name', 'age', 'food'])))->setKeyed([
+        $row = Row::with(Header::with(['name', 'age', 'food']))->setKeyed([
             'name' => 'Colby',
             'age' => 26,
             'food' => 'pizza',

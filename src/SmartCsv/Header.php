@@ -2,6 +2,7 @@
 
 namespace ColbyGatte\SmartCsv;
 
+use Countable;
 use ColbyGatte\SmartCsv\Helpers\ColumnGrouper;
 
 /**
@@ -9,22 +10,22 @@ use ColbyGatte\SmartCsv\Helpers\ColumnGrouper;
  *
  * @package ColbyGatte\CsvMan
  */
-class Header implements \Countable
+class Header implements Countable
 {
     /**
      * @var array
      */
-    protected $headerValues;
+    protected $values;
 
     /**
      * @var
      */
-    protected $headerValuesFlipped;
+    protected $valuesFlipped;
 
     /**
      * @var \ColbyGatte\SmartCsv\Helpers\ColumnGrouper
      */
-    protected $columnGrouper;
+    protected $grouper;
 
     /**
      * Header constructor.
@@ -33,20 +34,25 @@ class Header implements \Countable
      */
     public function __construct(array $header = [])
     {
-        $this->columnGrouper = new ColumnGrouper($this);
+        $this->grouper = new ColumnGrouper($this);
 
-        $this->setHeaderValues($header);
+        $this->setValues($header);
+    }
+
+    public static function with($header)
+    {
+        return new static($header);
     }
 
     /**
-     * Return all the columsn that are present in $columns but not in $this->headerValues.
+     * Return all the columsn that are present in $columns but not in $this->values.
      *
      * @param string[] $columns
      * @return string[]
      */
     public function missingColumns($columns)
     {
-        return array_diff($columns, $this->headerValues);
+        return array_diff($columns, $this->values);
     }
 
     /**
@@ -57,7 +63,7 @@ class Header implements \Countable
      */
     public function has($key)
     {
-        return isset($this->headerValuesFlipped[$key]);
+        return isset($this->valuesFlipped[$key]);
     }
 
     /**
@@ -65,9 +71,9 @@ class Header implements \Countable
      *
      * @return null
      */
-    public function getIndexForColumn($column)
+    public function indexForColumn($column)
     {
-        return isset($this->headerValuesFlipped[$column]) ? $this->headerValuesFlipped[$column] : null;
+        return $this->valuesFlipped[$column] ?? null;
     }
 
     /**
@@ -75,26 +81,30 @@ class Header implements \Countable
      *
      * @return mixed|null
      */
-    public function getColumnForIndex($index)
+    public function columnForIndex($index)
     {
-        return isset($this->headerValues[$index]) ? $this->headerValues[$index] : null;
+        return $this->values[$index] ?? null;
     }
 
     /**
      * @return \ColbyGatte\SmartCsv\Helpers\ColumnGrouper
      */
-    public function getColumnGrouper()
+    public function getGrouper()
     {
-        return $this->columnGrouper;
+        return $this->grouper;
     }
 
     /**
      * @param       $groupName
      * @param array $headerValuesToGroup
+     * 
+     * @return $this
      */
-    public function makeGroup($groupName, array $headerValuesToGroup)
+    public function makeGroup($groupName, array $values)
     {
-        $this->columnGrouper->makeGroup($groupName, $headerValuesToGroup);
+        $this->grouper->makeGroup($groupName, $values);
+
+        return $this;
     }
 
     /**
@@ -102,20 +112,20 @@ class Header implements \Countable
      *
      * @return array
      */
-    public function getHeaderValues()
+    public function getValues()
     {
-        return $this->headerValues;
+        return $this->values;
     }
 
     /**
      * @param $headerValues
      */
-    public function setHeaderValues($headerValues)
+    public function setValues($values)
     {
-        $this->headerValues = $headerValues;
-        $this->headerValuesFlipped = array_flip($headerValues);
+        $this->values = $values;
+        $this->valuesFlipped = array_flip($values);
 
-        $this->columnGrouper->reRunGroups();
+        $this->grouper->runGroups();
     }
 
     /**
@@ -123,7 +133,7 @@ class Header implements \Countable
      */
     public function count()
     {
-        return count($this->headerValues);
+        return count($this->values);
     }
 
     /**
@@ -131,9 +141,13 @@ class Header implements \Countable
      */
     public function addColumn($column)
     {
-        $headerValues = $this->headerValues;
-        $headerValues[] = $column;
+        $this->setValues(array_merge(
+            $this->values, [$column]
+        ));
+    }
 
-        $this->setHeaderValues($headerValues);
+    public function isNot($header)
+    {
+        return $header !== $this;
     }
 }

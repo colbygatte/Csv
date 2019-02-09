@@ -11,7 +11,7 @@ use Iterator;
  *
  * @package ColbyGatte\SmartCsv
  */
-class Csv extends CsvUtils implements Countable, Iterator
+class Csv extends Utils implements Countable, Iterator
 {
     /**
      * @var \ColbyGatte\SmartCsv\Header
@@ -24,31 +24,24 @@ class Csv extends CsvUtils implements Countable, Iterator
     protected $rows = [];
 
     /**
-     * @param null|\ColbyGatte\SmartCsv\Header $header
+     * @param array|\ColbyGatte\SmartCsv\Header $header
      */
-    public function __construct($header = null)
+    public function __construct($header)
     {
-        if ($header) {
-            $this->setHeader($header);
-        }
+        $this->header = $header instanceof Header ? $header : new Header($header);
+    }
+
+    public static function with($header)
+    {
+        return new static($header);
     }
 
     /**
      * @return \ColbyGatte\SmartCsv\Header
      */
-    public function getHeader()
+    public function header()
     {
         return $this->header;
-    }
-
-    /**
-     * @param \ColbyGatte\SmartCsv\Header|array $header
-     */
-    public function setHeader($header)
-    {
-        $this->header = $header instanceof Header ? $header : new Header($header);
-
-        return $this;
     }
 
     /**
@@ -56,10 +49,10 @@ class Csv extends CsvUtils implements Countable, Iterator
      *
      * @return \ColbyGatte\SmartCsv\Row
      */
-    public function append(array $data)
+    public function append(array $data = [])
     {
-        return $this->rows[] = (new Row($this->header))->set(
-            array_pad($data, count($this->header), '')
+        return $this->rows[] = Row::with($this->header)->setUnkeyed(
+            array_pad($data, $this->header->count(), '')
         );
     }
 
@@ -70,9 +63,7 @@ class Csv extends CsvUtils implements Countable, Iterator
      */
     public function appendKeyed(array $data)
     {
-        return $this->rows[] = (new Row($this->header))->setKeyed(
-            $data
-        );
+        return $this->rows[] = Row::with($this->header)->setKeyed($data);
     }
 
     /**
@@ -82,7 +73,7 @@ class Csv extends CsvUtils implements Countable, Iterator
      */
     public function appendRow(Row $row)
     {
-        if ($row->getHeader() !== $this->header) {
+        if ($row->header()->isNot($this->header)) {
             throw new Exception('Row header and csv header do not match');
         }
 
@@ -169,7 +160,7 @@ class Csv extends CsvUtils implements Countable, Iterator
      */
     public function valid()
     {
-        return key($this->rows) !== null;
+        return null !== key($this->rows);
     }
 
     /**
@@ -183,7 +174,7 @@ class Csv extends CsvUtils implements Countable, Iterator
     /**
      * @return \ColbyGatte\SmartCsv\Row[]
      */
-    public function getRows()
+    public function rows()
     {
         return $this->rows;
     }
@@ -206,13 +197,10 @@ class Csv extends CsvUtils implements Countable, Iterator
     public function pluckColumns($columns)
     {
         return $this->map(function ($row) use ($columns) {
-            $data = [];
-
-            foreach ($columns as $column) {
-                $data[$column] = $row->$column;
-            }
-
-            return $data;
+            return array_combine(
+                $columns,
+                array_map([$row, '__get'], $columns)
+            );
         });
     }
 }

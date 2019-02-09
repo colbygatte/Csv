@@ -2,7 +2,7 @@
 
 namespace Tests\UnitTests;
 
-use ColbyGatte\SmartCsv\CsvUtils;
+use ColbyGatte\SmartCsv\Utils;
 use ColbyGatte\SmartCsv\Header;
 use ColbyGatte\SmartCsv\Iterators\Sip;
 use Tests\TestCase;
@@ -26,7 +26,7 @@ class ReadingTest extends TestCase
     /** @test */
     public function can_slurp()
     {
-        $csv = CsvUtils::slurp(__DIR__.'/test.csv');
+        $csv = Utils::slurp(__DIR__.'/test.csv');
 
         $this->assertCount(3, $csv);
     }
@@ -34,12 +34,12 @@ class ReadingTest extends TestCase
     /** @test */
     public function can_alter()
     {
-        CsvUtils::alter(__DIR__.'/test.csv', __DIR__.'/test2.csv', function ($row) {
+        Utils::alter(__DIR__.'/test.csv', __DIR__.'/test2.csv', function ($row) {
             if ($row->name == 'Colby') {
                 return false;
             }
         });
 
-        $this->assertCount(2, CsvUtils::slurp(__DIR__.'/test2.csv'));
+        $this->assertCount(2, Utils::slurp(__DIR__.'/test2.csv'));
     }
 }

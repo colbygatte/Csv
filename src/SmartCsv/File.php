@@ -51,14 +51,9 @@ class File
      * New File.
      *
      * @param string $file
-     * @throws \Exception
      */
     public function __construct($file)
     {
-        if (! file_exists($file)) {
-            throw new Exception(sprintf('%s does not exists.', $file));
-        }
-
         $this->file = $file;
     }
 
@@ -83,20 +78,38 @@ class File
     }
 
     /**
-     * Open the file handle.
+     * Open the file handle for reading.
      *
      * @param string $mode
      * @return void
      * @throws \Exception
      */
-    public function open($mode = 'r')
+    public function openRead()
     {
         if ($this->isOpen()) {
             throw new Exception('CSV file already opened.');
         }
 
-        if (! $this->handle = fopen($this->file, $mode)) {
-            throw new Exception('Error opening file.');
+        if (! $this->handle = fopen($this->file, 'r')) {
+            throw new Exception('Error opening file for reading.');
+        }
+    }
+
+    /**
+     * Open the file handle for writing.
+     *
+     * @param string $mode
+     * @return void
+     * @throws \Exception
+     */
+    public function openWrite()
+    {
+        if ($this->isOpen()) {
+            throw new Exception('CSV file already opened.');
+        }
+
+        if (! $this->handle = fopen($this->file, 'w')) {
+            throw new Exception('Error opening file for writing.');
         }
     }
 

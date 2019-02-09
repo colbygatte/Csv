@@ -14,9 +14,9 @@ class RowTest extends TestCase
     {
         parent::setUp();
 
-        $this->row = (new Row(new Header([
+        $this->row = Row::with(Header::with([
             'foo', 'bar', 'baz',
-        ])))->set(['foo one', 'bar one', 'baz one']);
+        ]))->setUnkeyed(['foo one', 'bar one', 'baz one']);
     }
 
     /** @test */

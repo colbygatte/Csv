@@ -29,6 +29,11 @@ class Row
         $this->header = $header;
     }
 
+    public static function with(Header $header)
+    {
+        return new static($header);
+    }
+
     /**
      * @param string $delimiter
      *
@@ -56,7 +61,7 @@ class Row
      */
     public function toArray()
     {
-        return array_map([$this, '__get'], $this->header->getHeaderValues());
+        return array_map([$this, '__get'], $this->header->getValues());
     }
 
     /**
@@ -64,7 +69,7 @@ class Row
      */
     public function toDictionary()
     {
-        return $this->data;
+        return array_combine($this->header->getValues(), $this->toArray());
     }
 
     /**
@@ -93,7 +98,7 @@ class Row
      */
     public function __get($name)
     {
-        return isset($this->data[$name]) ? $this->data[$name] : null;
+        return $this->data[$name] ?? null;
     }
 
     /**
@@ -126,17 +131,24 @@ class Row
         }
     }
 
+    public function get($name)
+    {
+        return $this->__get($name);
+    }
+
+    public function set($name, $value)
+    {
+        return $this->__set($name, $value);
+    }
+
     /**
      * Important: This overwrites any data on the row
      *
-     * @param $unkeyedData
+     * @param array $data
      */
-    public function set($unkeyedData)
+    public function setUnkeyed($data)
     {
-        $this->data = array_combine(
-            $this->header->getHeaderValues(),
-            $unkeyedData
-        );
+        $this->data = array_combine($this->header->getValues(), $data);
 
         $this->initKeys();
 
@@ -148,9 +160,9 @@ class Row
      *
      * @return $this
      */
-    public function setKeyed($keyedData)
+    public function setKeyed($data)
     {
-        $this->data = array_merge($this->data, $keyedData);
+        $this->data = array_merge($this->data, $data);
 
         $this->initKeys();
 
@@ -160,7 +172,7 @@ class Row
     /**
      * @return \ColbyGatte\SmartCsv\Header
      */
-    public function getHeader()
+    public function header()
     {
         return $this->header;
     }
@@ -170,29 +182,30 @@ class Row
      *
      * @return array
      */
-    public function getGroup($groupName)
+    public function getGroup($name)
     {
-        $returnData = [];
-
-        $columnGrouper = $this->header->getColumnGrouper();
-        $indexGroups = $columnGrouper->getIndexes($groupName);
-
-        foreach ($indexGroups as $indexGroup) {
+        // TODO: unit test this function
+        $map = function ($group) {
             $subData = [];
 
-            foreach ($indexGroup as $valueName => $index) {
-                $subData[$valueName] = $this->data[$this->header->getColumnForIndex($index)];
+            foreach ($group as $valueName => $index) {
+                $subData[$valueName] = $this->data[$this->header->columnForIndex($index)];
             }
 
-            $returnData[] = $subData;
-        }
+            return $subData;
+        };
 
-        return $returnData;
+        return array_map($map, $this->header->getGrouper()->getIndexes($name));
     }
 
+    /**
+     * Make sure all keys are set.
+     *
+     * @return void
+     */
     protected function initKeys()
     {
-        foreach ($this->header->getHeaderValues() as $index => $name) {
+        foreach ($this->header->getValues() as $name) {
             if (! isset($this->data[$name])) {
                 $this->data[$name] = '';
             }

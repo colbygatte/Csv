@@ -2,10 +2,10 @@
 
 namespace ColbyGatte\SmartCsv\Iterators;
 
-use Iterator;
-use ColbyGatte\SmartCsv\Row;
 use ColbyGatte\SmartCsv\Header;
-use ColbyGatte\SmartCsv\CsvUtils;
+use ColbyGatte\SmartCsv\Row;
+use ColbyGatte\SmartCsv\Utils;
+use Iterator;
 
 /**
  * Class Sip
@@ -51,7 +51,7 @@ class Sip implements Iterator
      */
     public function __construct($file)
     {
-        $this->file = CsvUtils::file($file);
+        $this->file = Utils::file($file);
 
         $this->initFileHandle();
     }
@@ -73,12 +73,9 @@ class Sip implements Iterator
      */
     public function next()
     {
-        if (($data = $this->file->read()) !== false) {
-            $this->currentRow = new Row($this->header);
-            $this->currentRow->set($data);
-        } else {
-            $this->currentRow = null;
-        }
+        $this->currentRow = false !== ($data = $this->file->read())
+            ? Row::with($this->header)->setUnkeyed($data)
+            : null;
     }
 
     /**
@@ -118,7 +115,7 @@ class Sip implements Iterator
             $this->file->close();
         }
 
-        $this->file->open('r');
+        $this->file->openRead();
 
         $this->header = new Header(
             $this->file->read()
@@ -130,7 +127,7 @@ class Sip implements Iterator
     /**
      * @return \ColbyGatte\SmartCsv\Header
      */
-    public function getHeader()
+    public function header()
     {
         return $this->header;
     }

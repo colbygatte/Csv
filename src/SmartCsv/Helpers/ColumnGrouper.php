@@ -29,7 +29,7 @@ class ColumnGrouper
     /**
      * @var array
      */
-    protected $originalHeaderValuesToGroup;
+    protected $originalValues;
 
     /**
      * ColumnGrouper constructor.
@@ -42,23 +42,23 @@ class ColumnGrouper
     }
 
     /**
-     * @param string $groupName
+     * @param string $name
      * @param array  $headerValuesToGroup
      * @return void
      */
-    public function makeGroup($groupName, $headerValuesToGroup)
+    public function makeGroup($name, $values)
     {
-        $this->groupingData[$groupName] = $this->makeGroupingData($headerValuesToGroup);
+        $this->groupingData[$name] = $this->makeGroupingData($values);
 
-        $this->originalHeaderValuesToGroup[$groupName] = $headerValuesToGroup;
+        $this->originalValues[$name] = $values;
 
-        $this->findGroupIndexes($groupName);
+        $this->findGroupIndexes($name);
     }
 
     /**
      * @return void
      */
-    public function reRunGroups()
+    public function runGroups()
     {
         $groups = array_keys($this->groupingData);
 
@@ -66,68 +66,63 @@ class ColumnGrouper
     }
 
     /**
-     * @param $groupName
+     * @param $name
      *
      * @return array
      */
-    public function getIndexes($groupName)
+    public function getIndexes($name)
     {
-        return array_values($this->groups[$groupName]);
+        return array_values($this->groups[$name]);
     }
 
     /**
-     * @param $groupName
+     * @param $name
      */
-    protected function findGroupIndexes($groupName)
+    protected function findGroupIndexes($name)
     {
         $groups = [];
 
-        foreach ($this->header->getHeaderValues() as $entireHeaderIndex => $entireHeaderValue) {
-            foreach ($this->groupingData[$groupName] as $groupingDatum) {
-                $entireHeaderValueSubstr = substr($entireHeaderValue, 0, $groupingDatum['length']);
-                if ($entireHeaderValueSubstr == $groupingDatum['value']) {
-                    // The remaining string after the match
-                    $remainingSubstr = substr($entireHeaderValue, $groupingDatum['length']);
+        foreach ($this->header->getValues() as $index => $value) {
+            foreach ($this->groupingData[$name] as $item) {
+                if (substr($value, 0, $item['length']) === $item['value']) {
+                    $remainder = substr($value, $item['length']);
 
-                    if (! isset($groups[$remainingSubstr])) {
-                        $groups[$remainingSubstr] = [];
+                    if (! isset($groups[$remainder])) {
+                        $groups[$remainder] = [];
                     }
-
-                    $groups[$remainingSubstr][$groupingDatum['value']] = $entireHeaderIndex;
-
+    
+                    $groups[$remainder][$item['value']] = $index;
+    
                     break;
                 }
             }
         }
 
-        $this->groups[$groupName] = $groups;
+        $this->groups[$name] = $groups;
     }
 
     /**
-     * @param $headerValuesToGroup
+     * @param string[] $values
      *
      * @return array
      */
-    protected function makeGroupingData($headerValuesToGroup)
+    protected function makeGroupingData($values)
     {
-        $data = [];
-
-        $lengths = array_map('strlen', $headerValuesToGroup);
-        foreach ($headerValuesToGroup as $index => $headerValueToGroup) {
-            $data[] = [
-                'length' => $lengths[$index],
-                'value' => $headerValueToGroup
+        return array_map(function ($value) {
+            return [
+                'value' => $value,
+                'length' => strlen($value),
             ];
-        }
-
-        return $data;
+        }, $values);
     }
 
     /**
+     * @param string $name
+     *
      * @return mixed
      */
-    public function getOriginalHeaderValuesToGroup($groupName)
+    public function getOriginalValues($name)
     {
-        return $this->originalHeaderValuesToGroup[$groupName];
+        return $this->originalValues[$name];
     }
 }

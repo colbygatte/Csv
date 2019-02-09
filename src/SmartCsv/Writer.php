@@ -2,6 +2,8 @@
 
 namespace ColbyGatte\SmartCsv;
 
+use Exception;
+
 /**
  * Class Writer
  *
@@ -22,9 +24,9 @@ class Writer
      */
     public function __construct($file)
     {
-        $this->file = CsvUtils::file($file);
+        $this->file = Utils::file($file);
 
-        $this->file->open('w');
+        $this->file->openWrite();
     }
 
     /**
@@ -33,9 +35,11 @@ class Writer
     public function write($row)
     {
         if ($row instanceof Header) {
-            $row = $row->getHeaderValues();
+            $row = $row->getValues();
         } elseif ($row instanceof Row) {
             $row = $row->toArray();
+        } elseif (! is_array($row)) {
+            throw new Exception('Invalid row.');
         }
 
         $this->file->write($row);
