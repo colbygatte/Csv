@@ -148,13 +148,24 @@ class Row
      */
     public function setUnkeyed($data)
     {
-        $keys = array_pad($this->header->getValues(), count($data), '');
-
-        $this->data = array_combine($keys, $data);
+        $this->data = $this->combine(
+            $this->header->getValues(),
+            $data
+        );
 
         $this->initKeys();
 
         return $this;
+    }
+
+    public function combine($keys, $values)
+    {
+        $max = max(count($keys), count($values));
+
+        return array_combine(
+            array_pad($keys, $max, ''),
+            array_pad($values, $max, '')
+       ); 
     }
 
     /**
