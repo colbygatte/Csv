@@ -148,7 +148,9 @@ class Row
      */
     public function setUnkeyed($data)
     {
-        $this->data = array_combine($this->header->getValues(), $data);
+        $keys = array_pad($this->header->getValues(), count($data), '');
+
+        $this->data = array_combine($keys, $data);
 
         $this->initKeys();
 
